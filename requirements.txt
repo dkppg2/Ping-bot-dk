@@ -1,3 +1,11 @@
-fastapi
-pyrogram
+Pyrogram==2.0.30
+TgCrypto==1.2.3
+bs4
+mdisky
+heroku3
+aiofiles
+validators
+python-dotenv
+lxml
+flask==2.0.1
 pymongo 
