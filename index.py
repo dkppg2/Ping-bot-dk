@@ -79,7 +79,7 @@ async def check_ping(client, message):
 
             websites_collection.update_one({"name": website_name}, {"$set": {"status": "🟢 ON"}})
         except subprocess.SubprocessError as e:
-            error = f"Error pinging {website_name}:\n\n{e.stderr.decode()}"
+            error = f"Error pinging {website_name}: 🔴 OFF\n\n{e.stderr.decode()}"
             await message.reply_text(error)
 
             websites_collection.update_one({"name": website_name}, {"$set": {"status": "🔴 OFF"}})
@@ -109,13 +109,13 @@ async def list_websites(client, message):
         website_name = website["name"]
         website_status = website["status"]
         website_url = website["url"]
-        button_text = f"{website_name}"
+        button_text = f"{website_name} (Status: {website_status})"
         callback_data = f"status_{website_url}_{website_name}"  # Unique callback data for each website
         buttons.append(types.InlineKeyboardButton(text=button_text, callback_data=callback_data))
-        buttons.append(types.InlineKeyboardButton(text=website_status, callback_data=callback_data))
 
     markup = types.InlineKeyboardMarkup([buttons])
     await message.reply_text("Select a website to ping:", reply_markup=markup)
+
 
 # Define a callback handler for the inline markup buttons
 @app.on_callback_query()
@@ -141,7 +141,7 @@ async def handle_callback(client, callback_query):
 
                 websites_collection.update_one({"name": website_name}, {"$set": {"status": "🔴 OFF"}})
         else:
-            await callback_query.message.reply_text(f"Something Gonna Wrong '{website_name}' not found")
+            await callback_query.message.reply_text(f"Something Gonna Wrong '{website_name}' not working. please try again some time ago or contact to my owner")
 
 # Start the bot
 app.run()
