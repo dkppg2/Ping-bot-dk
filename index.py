@@ -7,7 +7,7 @@ from pymongo import MongoClient
 
 api_id = "11834008"
 api_hash = "469c11d445ed952818017329db22483f"
-bot_token = "6185330461:AAFOMtt2bZqsaoI6es41NEGAgx8zH93wo0w"
+bot_token = "6292528961:AAFGutULjLy0ygV_w10Pn4mZ-OWCLcSe0l0"
 bot_username = "DK_MAIN_MASTER_BOT"
 app = Client("ping_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
