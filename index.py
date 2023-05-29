@@ -8,13 +8,13 @@ from pymongo import MongoClient
 
 api_id = "11834008"
 api_hash = "469c11d445ed952818017329db22483f"
-bot_token = "6292528961:AAFGutULjLy0ygV_w10Pn4mZ-OWCLcSe0l0"
+bot_token = "6185330461:AAFOMtt2bZqsaoI6es41NEGAgx8zH93wo0w"
 bot_username = "DK_MAIN_MASTER_BOT"
 app = Client("DK_MAIN_MASTER_BOT", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
 # Connect to MongoDB Atlas
 mongo_client = MongoClient("mongodb+srv://dkbotztg:dkbotztg@cluster0.82bybvo.mongodb.net/?retryWrites=true&w=majority")
-db = mongo_client["ping_bot_dbz"]  # Specify the name of your MongoDB database
+db = mongo_client["DK_MAIN_MASTER_BOT"]  # Specify the name of your MongoDB database
 websites_collection = db["websites"]  # Collection to store websites
 
 # Define a command handler to add websites
@@ -144,15 +144,15 @@ async def handle_callback(client, callback_query):
             await callback_query.message.reply_text(f"The website '{website_name}' is up.")
             websites_collection.update_one({"name": website_name}, {"$set": {"status": "🟢 ON"}})
         else:
-            await callback_query.message.reply_text(f"The website '{website_name}' is down. Rechecking in 1 minute...")
+            await callback_query.message.reply_text(f"The '{website_name}' is down. Rechecking in 1 minute...")
             await asyncio.sleep(60)  # Wait for 1 minute
             is_website_up = await check_website_status(website_url)
             
             if is_website_up:
-                await callback_query.message.reply_text(f"The website '{website_name}' is up now.")
+                await callback_query.message.reply_text(f"The  '{website_name}' is up now.")
                 websites_collection.update_one({"name": website_name}, {"$set": {"status": "🟢 ON"}})
             else:
-                await callback_query.message.reply_text(f"The website '{website_name}' is still down.")
+                await callback_query.message.reply_text(f"The '{website_name}' is still down.")
                 websites_collection.update_one({"name": website_name}, {"$set": {"status": "🔴 OFF"}})
 
 
