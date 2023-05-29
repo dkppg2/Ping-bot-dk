@@ -9,11 +9,11 @@ api_id = "11834008"
 api_hash = "469c11d445ed952818017329db22483f"
 bot_token = "6292528961:AAFGutULjLy0ygV_w10Pn4mZ-OWCLcSe0l0"
 bot_username = "DK_MAIN_MASTER_BOT"
-app = Client("ping_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
+app = Client("DK_MAIN_MASTER_BOT", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
 # Connect to MongoDB Atlas
 mongo_client = MongoClient("mongodb+srv://dkbotztg:dkbotztg@cluster0.82bybvo.mongodb.net/?retryWrites=true&w=majority")
-db = mongo_client["ping_bot_db"]  # Specify the name of your MongoDB database
+db = mongo_client["ping_bot_dbz"]  # Specify the name of your MongoDB database
 websites_collection = db["websites"]  # Collection to store websites
 
 # Define a command handler to add websites
@@ -62,7 +62,7 @@ async def start_cmd(client, message):
     await message.reply_text("Hello {message.from_user.mention},\n\nI Am Master Bot\n\nUse Me To UP @DKBOTZ Bot")
 # Define a command handler for /start command
 @app.on_message(filters.command("check"))
-async def check_ping(client, message):
+async def check_pingss(client, message):
     await message.reply_text("Pinging websites from the database.")
 
     websites = websites_collection.find()
