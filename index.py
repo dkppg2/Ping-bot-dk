@@ -1,4 +1,5 @@
-
+import asyncio
+import base64
 import os
 import subprocess
 import asyncio
@@ -100,6 +101,9 @@ async def remove_site(client, message):
     else:
         await message.reply_text(f"Website '{website_name}' not found in the ping list.")
 
+import asyncio
+import base64
+
 # Define a command handler for /list command
 @app.on_message(filters.command("list"))
 async def list_websites(client, message):
@@ -110,11 +114,12 @@ async def list_websites(client, message):
         website_name = website["name"]
         website_status = website["status"]
         website_url = website["url"]
-        button_text = f"{website_name} (Status: {website_status})"
-        callback_data = f"status_{website_url}_{website_name}"  # Unique callback data for each website
+        button_text = f"{website_name}"
+        status = f"{website_status}"
+        callback_data = f"status_{base64.b64encode(website_url.encode()).decode()}_{website_name}"  # Unique callback data for each website
         row.append(types.InlineKeyboardButton(text=button_text, callback_data=callback_data))
-        
-        if len(row) == 1:
+        row.append(types.InlineKeyboardButton(text=status, callback_data=callback_data))
+        if len(row) == 2:  # Adjust the number of buttons per row here
             buttons.append(row)
             row = []
     
@@ -125,32 +130,42 @@ async def list_websites(client, message):
     await message.reply_text("Select a website to ping:", reply_markup=markup)
 
 
-
 # Define a callback handler for the inline markup buttons
 @app.on_callback_query()
 async def handle_callback(client, callback_query):
     callback_data = callback_query.data
     if callback_data.startswith("status_"):
-        website_url, website_name = callback_data.split("_")[1]
-        website = callback_data.split("_")[1]
-        if website:
-            website_url = callback_data.split("_")[1]
-            try:
-                ping_output = await asyncio.create_subprocess_shell(f"ping -c 4 {website_url}", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                stdout, stderr = await ping_output.communicate()
-                ping_output = stdout.decode()
-
-                result = f"Bot is Working {website_name}:\n\n{ping_output}"
-                await callback_query.message.reply_text(result)
-
-                websites_collection.update_one({"name": website_name}, {"$set": {"status": "🟢 ON"}})
-            except subprocess.SubprocessError as e:
-                error = f"Error pinging {website_name}:\n\n{e.stderr.decode()}"
-                await callback_query.message.reply_text(error)
-
-                websites_collection.update_one({"name": website_name}, {"$set": {"status": "🔴 OFF"}})
+        _, website_url_b64, website_name = callback_data.split("_")
+        website_url = base64.b64decode(website_url_b64.encode()).decode()
+        
+        # Check website status
+        is_website_up = await check_website_status(website_url)
+        
+        if is_website_up:
+            await callback_query.message.reply_text(f"The website '{website_name}' is up.")
+            websites_collection.update_one({"name": website_name}, {"$set": {"status": "🟢 ON"}})
         else:
-            await callback_query.message.reply_text(f"Something Gonna Wrong '{website_name}' not working. please try again some time ago or contact to my owner")
+            await callback_query.message.reply_text(f"The website '{website_name}' is down. Rechecking in 1 minute...")
+            await asyncio.sleep(60)  # Wait for 1 minute
+            is_website_up = await check_website_status(website_url)
+            
+            if is_website_up:
+                await callback_query.message.reply_text(f"The website '{website_name}' is up now.")
+                websites_collection.update_one({"name": website_name}, {"$set": {"status": "🟢 ON"}})
+            else:
+                await callback_query.message.reply_text(f"The website '{website_name}' is still down.")
+                websites_collection.update_one({"name": website_name}, {"$set": {"status": "🔴 OFF"}})
+
+
+async def check_website_status(website_url):
+    try:
+        ping_output = await asyncio.create_subprocess_shell(f"ping -c 4 {website_url}", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = await ping_output.communicate()
+        ping_output = stdout.decode()
+
+        return True
+    except subprocess.SubprocessError:
+        return False
 
 # Start the bot
 app.run()
