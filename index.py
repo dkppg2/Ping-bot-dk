@@ -101,10 +101,10 @@ async def remove_site(client, message):
     else:
         await message.reply_text(f"Website '{website_name}' not found in the ping list.")
 
-import asyncio
 import base64
+from pyrogram import filters, types
 
-# Define a command handler for /list command
+
 @app.on_message(filters.command("list"))
 async def list_websites(client, message):
     websites = websites_collection.find()
@@ -115,7 +115,7 @@ async def list_websites(client, message):
         website_status = website["status"]
         website_url = website["url"]
         button_text = f"{website_name} (Status: {website_status})"
-        callback_data = f"status_{base64.b64encode(website_url.encode()).decode()}_{website_name}"  # Unique callback data for each website
+        callback_data = f"status_{base64.urlsafe_b64encode(website_url.encode()).decode()}_{website_name}"  # Unique callback data for each website
         row.append(types.InlineKeyboardButton(text=button_text, callback_data=callback_data))
         
         if len(row) == 2:  # Adjust the number of buttons per row here
@@ -129,13 +129,14 @@ async def list_websites(client, message):
     await message.reply_text("Select a website to ping:", reply_markup=markup)
 
 
+
 # Define a callback handler for the inline markup buttons
 @app.on_callback_query()
 async def handle_callback(client, callback_query):
     callback_data = callback_query.data
     if callback_data.startswith("status_"):
         _, website_url_b64, website_name = callback_data.split("_")
-        website_url = base64.b64decode(website_url_b64.encode()).decode()
+        website_url = base64.urlsafe_b64decode(website_url_b64.encode()).decode()
         
         # Check website status
         is_website_up = await check_website_status(website_url)
@@ -149,11 +150,12 @@ async def handle_callback(client, callback_query):
             is_website_up = await check_website_status(website_url)
             
             if is_website_up:
-                await callback_query.message.reply_text(f"The  '{website_name}' is up now.")
+                await callback_query.message.reply_text(f"The '{website_name}' is up now.")
                 websites_collection.update_one({"name": website_name}, {"$set": {"status": "🟢 ON"}})
             else:
                 await callback_query.message.reply_text(f"The '{website_name}' is still down.")
                 websites_collection.update_one({"name": website_name}, {"$set": {"status": "🔴 OFF"}})
+
 
 
 async def check_website_status(website_url):
