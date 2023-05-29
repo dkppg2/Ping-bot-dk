@@ -114,11 +114,10 @@ async def list_websites(client, message):
         website_name = website["name"]
         website_status = website["status"]
         website_url = website["url"]
-        button_text = f"{website_name}"
-        status = f"{website_status}"
+        button_text = f"{website_name} (Status: {website_status})"
         callback_data = f"status_{base64.b64encode(website_url.encode()).decode()}_{website_name}"  # Unique callback data for each website
         row.append(types.InlineKeyboardButton(text=button_text, callback_data=callback_data))
-        row.append(types.InlineKeyboardButton(text=status, callback_data=callback_data))
+        
         if len(row) == 2:  # Adjust the number of buttons per row here
             buttons.append(row)
             row = []
