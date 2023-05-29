@@ -27,7 +27,7 @@ async def add_site(client, message):
     website_name = command_parts[1]
     website_url = command_parts[2]
 
-    website = {"name": website_name, "url": website_url, "status": "off"}
+    website = {"name": website_name, "url": website_url, "status": "🔴 OFF"}
     websites_collection.insert_one(website)
 
     await message.reply_text(f"Added {website_name} to the ping list. Bot username: {bot_username}")
@@ -57,10 +57,12 @@ async def ping_website(client, message):
             await message.reply_text(error)
     else:
         await message.reply_text(f"Website '{website_name}' not found. Bot username: {bot_username}")
-
-# Define a command handler for /start command
 @app.on_message(filters.command("start"))
-async def start_ping(client, message):
+async def start_cmd(client, message):
+    await message.reply_text("Hello {message.from_user.mention},\n\nI Am Master Bot\n\nUse Me To UP @DKBOTZ Bot")
+# Define a command handler for /start command
+@app.on_message(filters.command("check"))
+async def check_ping(client, message):
     await message.reply_text("Pinging websites from the database.")
 
     websites = websites_collection.find()
@@ -75,12 +77,12 @@ async def start_ping(client, message):
             result = f"Ping result for {website_name}:\n\n{ping_output}"
             await message.reply_text(result)
 
-            websites_collection.update_one({"name": website_name}, {"$set": {"status": "on"}})
+            websites_collection.update_one({"name": website_name}, {"$set": {"status": "🟢 ON"}})
         except subprocess.SubprocessError as e:
             error = f"Error pinging {website_name}:\n\n{e.stderr.decode()}"
             await message.reply_text(error)
 
-            websites_collection.update_one({"name": website_name}, {"$set": {"status": "off"}})
+            websites_collection.update_one({"name": website_name}, {"$set": {"status": "🔴 OFF"}})
 
 # Define a command handler for /remove_site command
 @app.on_message(filters.command("remove_site"))
@@ -106,8 +108,9 @@ async def list_websites(client, message):
     for website in websites:
         website_name = website["name"]
         website_status = website["status"]
+        website_url = website["url"]
         button_text = f"{website_name}"
-        callback_data = f"status_{website_name}"  # Unique callback data for each website
+        callback_data = f"status_{website_url}_{website_name}"  # Unique callback data for each website
         buttons.append(types.InlineKeyboardButton(text=button_text, callback_data=callback_data))
         buttons.append(types.InlineKeyboardButton(text=website_status, callback_data=callback_data))
 
@@ -119,26 +122,26 @@ async def list_websites(client, message):
 async def handle_callback(client, callback_query):
     callback_data = callback_query.data
     if callback_data.startswith("status_"):
-        website_name = callback_data.split("_")[1]
-        website = websites_collection.find_one({"name": website_name})
+        website_url, website_name = callback_data.split("_")[1]
+        website = callback_data.split("_")[1]
         if website:
-            website_url = website["url"]
+            website_url = callback_data.split("_")[1]
             try:
                 ping_output = await asyncio.create_subprocess_shell(f"ping -c 4 {website_url}", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 stdout, stderr = await ping_output.communicate()
                 ping_output = stdout.decode()
 
-                result = f"Ping result for {website_name}:\n\n{ping_output}"
+                result = f"Bot is Working {website_name}:\n\n{ping_output}"
                 await callback_query.message.reply_text(result)
 
-                websites_collection.update_one({"name": website_name}, {"$set": {"status": "on"}})
+                websites_collection.update_one({"name": website_name}, {"$set": {"status": "🟢 ON"}})
             except subprocess.SubprocessError as e:
                 error = f"Error pinging {website_name}:\n\n{e.stderr.decode()}"
                 await callback_query.message.reply_text(error)
 
-                websites_collection.update_one({"name": website_name}, {"$set": {"status": "off"}})
+                websites_collection.update_one({"name": website_name}, {"$set": {"status": "🔴 OFF"}})
         else:
-            await callback_query.message.reply_text(f"Website '{website_name}' not found. Bot username: {bot_username}")
+            await callback_query.message.reply_text(f"Something Gonna Wrong '{website_name}' not found")
 
 # Start the bot
 app.run()
