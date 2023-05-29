@@ -74,7 +74,7 @@ async def check_pingss(client, message):
             stdout, stderr = await ping_output.communicate()
             ping_output = stdout.decode()
 
-            result = f"Ping result for {website_name}:\n\n{ping_output}"
+            result = f"Ping result for {website_name}: 🟢 ON\n\n{ping_output}"
             await message.reply_text(result)
 
             websites_collection.update_one({"name": website_name}, {"$set": {"status": "🟢 ON"}})
@@ -111,7 +111,7 @@ async def list_websites(client, message):
         website_url = website["url"]
         button_text = f"{website_name} (Status: {website_status})"
         callback_data = f"status_{website_url}_{website_name}"  # Unique callback data for each website
-        buttons.append(types.InlineKeyboardButton(text=button_text, callback_data=callback_data))
+        buttons.append(types.InlineKeyboardButton(text=button_text, callback_data=callback_data),)
 
     markup = types.InlineKeyboardMarkup([buttons])
     await message.reply_text("Select a website to ping:", reply_markup=markup)
