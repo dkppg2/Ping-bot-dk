@@ -12,7 +12,7 @@ bot_username = "DK_MAIN_MASTER_BOT"
 app = Client("ping_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
 # Connect to MongoDB Atlas
-mongo_client = MongoClient("YOUR_MONGODB_CONNECTION_STRING")  # Replace with your MongoDB connection string
+mongo_client = MongoClient("mongodb+srv://dkbotztg:dkbotztg@cluster0.82bybvo.mongodb.net/?retryWrites=true&w=majority")
 db = mongo_client["ping_bot_db"]  # Specify the name of your MongoDB database
 websites_collection = db["websites"]  # Collection to store websites
 
