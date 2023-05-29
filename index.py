@@ -121,7 +121,7 @@ async def list_websites(client, message):
     if row:
         buttons.append(row)
 
-    markup = types.InlineKeyboardMarkup(row)
+    markup = types.InlineKeyboardMarkup(buttons)
     await message.reply_text("Select a website to ping:", reply_markup=markup)
 
 
