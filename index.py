@@ -1,6 +1,7 @@
 import asyncio
 import base64
 import os
+
 import subprocess
 import asyncio
 from pyrogram import Client, filters, types
@@ -101,8 +102,6 @@ async def remove_site(client, message):
     else:
         await message.reply_text(f"Website '{website_name}' not found in the ping list.")
 
-import base64
-from pyrogram import filters, types
 
 
 @app.on_message(filters.command("list"))
