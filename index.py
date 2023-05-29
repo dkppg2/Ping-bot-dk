@@ -1,31 +1,20 @@
+
 import os
 import subprocess
 import asyncio
-from fastapi import FastAPI, Request
 from pyrogram import Client, filters, types
 from pymongo import MongoClient
 
-# Initialize your bot using API credentials
 api_id = "11834008"
 api_hash = "469c11d445ed952818017329db22483f"
 bot_token = "6185330461:AAFOMtt2bZqsaoI6es41NEGAgx8zH93wo0w"
 bot_username = "DK_MAIN_MASTER_BOT"
 app = Client("ping_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
-# Create a FastAPI instance
-api = FastAPI()
-
 # Connect to MongoDB Atlas
 mongo_client = MongoClient("YOUR_MONGODB_CONNECTION_STRING")  # Replace with your MongoDB connection string
 db = mongo_client["ping_bot_db"]  # Specify the name of your MongoDB database
 websites_collection = db["websites"]  # Collection to store websites
-
-# Define a route to handle Telegram webhook
-@api.post("/webhook")
-async def webhook(request: Request):
-    data = await request.json()
-    await app.process_updates(data)
-    return {"ok": True}
 
 # Define a command handler to add websites
 @app.on_message(filters.command("add_site"))
@@ -151,5 +140,5 @@ async def handle_callback(client, callback_query):
         else:
             await callback_query.message.reply_text(f"Website '{website_name}' not found. Bot username: {bot_username}")
 
-# Start the bot and the FastAPI server
-app.start()
+# Start the bot
+app.run()
