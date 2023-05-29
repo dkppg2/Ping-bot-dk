@@ -105,16 +105,25 @@ async def remove_site(client, message):
 async def list_websites(client, message):
     websites = websites_collection.find()
     buttons = []
+    row = []
     for website in websites:
         website_name = website["name"]
         website_status = website["status"]
         website_url = website["url"]
         button_text = f"{website_name} (Status: {website_status})"
         callback_data = f"status_{website_url}_{website_name}"  # Unique callback data for each website
-        buttons.append(types.InlineKeyboardButton(text=button_text, callback_data=callback_data),)
+        row.append(types.InlineKeyboardButton(text=button_text, callback_data=callback_data))
+        
+        if len(row) == 1:
+            buttons.append(row)
+            row = []
+    
+    if row:
+        buttons.append(row)
 
-    markup = types.InlineKeyboardMarkup([buttons])
+    markup = types.InlineKeyboardMarkup(row)
     await message.reply_text("Select a website to ping:", reply_markup=markup)
+
 
 
 # Define a callback handler for the inline markup buttons
